@@ -1,0 +1,141 @@
+<div class="game-container">
+    <h2>Roulette (0-12)</h2>
+    
+    <div class="wheel-result" id="result-display">
+        Ready to Spin
+    </div>
+
+    <div class="betting-board">
+        <div class="bet-section">
+            <div class="numbers-grid">
+                <button class="bet-btn number green" onclick="placeBet('number', 0)">0</button>
+                <!-- Row 1 -->
+                <button class="bet-btn number red" onclick="placeBet('number', 1)">1</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 2)">2</button>
+                <button class="bet-btn number red" onclick="placeBet('number', 3)">3</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 4)">4</button>
+                <button class="bet-btn number red" onclick="placeBet('number', 5)">5</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 6)">6</button>
+                <!-- Row 2 -->
+                <button class="bet-btn number red" onclick="placeBet('number', 7)">7</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 8)">8</button>
+                <button class="bet-btn number red" onclick="placeBet('number', 9)">9</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 10)">10</button>
+                <button class="bet-btn number red" onclick="placeBet('number', 11)">11</button>
+                <button class="bet-btn number black" onclick="placeBet('number', 12)">12</button>
+            </div>
+
+            <div class="outside-bets">
+                <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">RED (x2)</button>
+                <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">BLACK (x2)</button>
+                <button class="bet-btn" onclick="placeBet('parity', 'even')">EVEN (x2)</button>
+                <button class="bet-btn" onclick="placeBet('parity', 'odd')">ODD (x2)</button>
+            </div>
+        </div>
+        
+        <div class="bet-controls">
+            <div class="bet-amount-box">
+                <label for="bet-amount">Bet Amount</label>
+                <input type="number" id="bet-amount" value="10" min="1">
+            </div>
+            <div id="current-bet" class="current-bet-display">No bet selected</div>
+            <button id="spin-btn" class="spin-button" onclick="spinWheel()" disabled>SPIN</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentBetType = null;
+    let currentBetValue = null;
+
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function placeBet(type, value) {
+        currentBetType = type;
+        currentBetValue = value;
+        document.getElementById('current-bet').innerText = `Selected Bet: ${type.toUpperCase()} ${value}`;
+        document.getElementById('spin-btn').disabled = false;
+        
+        // Highlight selected
+        document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+    }
+
+    async function spinWheel() {
+        const amount = document.getElementById('bet-amount').value;
+        if (!currentBetType || amount <= 0) {
+            showToast('Please place a valid bet first', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('spin-btn');
+        const resultDiv = document.getElementById('result-display');
+        
+        btn.disabled = true;
+        btn.innerText = 'Spinning...';
+        
+        // Trigger spinning animation
+        resultDiv.classList.add('spinning');
+        resultDiv.innerText = '🎰';
+
+        try {
+            const response = await fetch('/spin', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    bet_type: currentBetType,
+                    bet_value: currentBetValue,
+                    bet_amount: amount
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Wait for animation to complete (2 seconds)
+            setTimeout(() => {
+                resultDiv.classList.remove('spinning');
+                
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    resultDiv.innerText = 'Ready to Spin';
+                    resultDiv.className = 'wheel-result';
+                    btn.disabled = false;
+                    btn.innerText = 'SPIN';
+                } else {
+                    resultDiv.innerText = `${data.outcome_number} (${data.outcome_color.toUpperCase()})`;
+                    resultDiv.className = `wheel-result ${data.outcome_color}`;
+                    
+                    if (data.payout > 0) {
+                        showToast(`🎉 You Won $${data.payout}! New Balance: $${data.new_balance}`, 'success');
+                    } else {
+                        showToast(`You lost $${amount}. Better luck next time!`, 'error');
+                    }
+                    
+                    // Reload to update balance
+                    setTimeout(() => location.reload(), 2500);
+                }
+            }, 2000);
+        } catch (e) {
+            console.error(e);
+            resultDiv.classList.remove('spinning');
+            showToast('Connection error. Please try again.', 'error');
+            btn.disabled = false;
+            btn.innerText = 'SPIN';
+        }
+    }
+</script>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="user-nav">
+    <div class="logo">Roulette Game</div>
+    <div class="user-info" onclick="showMoneyModal()">
+        <span class="username">{{ current_user.username }}</span>
+        <span class="balance">${{ "%.2f"|format(current_user.balance) }}</span>
+    </div>
+</nav>
+
+<div class="game-wrapper">
+    {% include 'game_board.html' %}
+</div>
+
+<!-- Money Request Modal -->
+<div id="money-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeMoneyModal()">&times;</span>
+        <h3>Request Money</h3>
+        <p>Current Balance: ${{ "%.2f"|format(current_user.balance) }}</p>
+        <input type="number" id="money-amount" placeholder="Enter amount" min="1" step="0.01">
+        <button onclick="requestMoney()">Send Request to Admin</button>
+    </div>
+</div>
+
+<script>
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function showMoneyModal() {
+        document.getElementById('money-modal').style.display = 'block';
+    }
+
+    function closeMoneyModal() {
+        document.getElementById('money-modal').style.display = 'none';
+    }
+
+    async function requestMoney() {
+        const amount = document.getElementById('money-amount').value;
+        if (!amount || amount <= 0) {
+            showToast('Please enter a valid amount', 'warning');
+            return;
+        }
+
+        const response = await fetch('/request_money', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ amount: parseFloat(amount) })
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            showToast('💰 Money request sent to admin successfully!', 'success');
+            closeMoneyModal();
+            document.getElementById('money-amount').value = '';
+        } else {
+            showToast(data.error || 'Error sending request', 'error');
+        }
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('money-modal');
+        if (event.target == modal) {
+            closeMoneyModal();
+        }
+    }
+</script>
+{% endblock %}
