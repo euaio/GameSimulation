@@ -1,0 +1,943 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="user-nav simulation-nav">
+    <div class="logo">
+        <span class="sim-badge">📊</span>
+        Monte Carlo Simulation
+    </div>
+    <a href="{{ url_for('index') }}" class="logout-btn">
+        ← Back to Login
+    </a>
+</nav>
+
+<div class="simulation-container">
+    <div class="sim-panel modern-panel">
+        <div class="panel-header">
+            <h2>🎲 Roulette Monte Carlo Simulation</h2>
+            <p class="panel-description">Run statistical simulations to analyze game outcomes, probabilities, and expected returns.</p>
+        </div>
+
+        <div class="sim-configuration">
+            <!-- Basic Settings -->
+            <div class="config-section">
+                <h3>Basic Configuration</h3>
+                
+                <div class="input-row">
+                    <div class="input-group-sim">
+                        <label for="sim-runs">Number of Simulations</label>
+                        <input type="number" id="sim-runs" value="10000" min="100" max="10000000" step="1000">
+                        <span class="input-hint">Recommended: 10,000 - 100,000</span>
+                    </div>
+                    
+                    <div class="input-group-sim">
+                        <label for="bet-amount">Bet Amount ($)</label>
+                        <input type="number" id="bet-amount" value="10" min="0.01" step="0.01">
+                        <span class="input-hint">Amount per simulation</span>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group-sim full-width">
+                        <label for="bet-type">Bet Type</label>
+                        <select id="bet-type" onchange="updateBetOptions()">
+                            <option value="number">Specific Number (13:1 payout)</option>
+                            <option value="color">Color (Red/Black) (2:1 payout)</option>
+                            <option value="parity">Parity (Odd/Even) (2:1 payout)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-row" id="bet-value-container">
+                    <div class="input-group-sim full-width">
+                        <label for="bet-value">Bet Value</label>
+                        <select id="bet-value">
+                            <option value="0">0 (Green)</option>
+                            <option value="1">1 (Red)</option>
+                            <option value="2">2 (Black)</option>
+                            <option value="3">3 (Red)</option>
+                            <option value="4">4 (Black)</option>
+                            <option value="5">5 (Red)</option>
+                            <option value="6">6 (Black)</option>
+                            <option value="7">7 (Red)</option>
+                            <option value="8">8 (Black)</option>
+                            <option value="9">9 (Red)</option>
+                            <option value="10">10 (Black)</option>
+                            <option value="11">11 (Red)</option>
+                            <option value="12">12 (Black)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="config-section advanced-section">
+                <h3>Advanced Options</h3>
+                
+                <div class="checkbox-row">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="use-seed" onchange="toggleSeedInput()">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Use Random Seed (for reproducible results)</span>
+                    </label>
+                </div>
+
+                <div class="input-row seed-input" id="seed-container" style="display:none;">
+                    <div class="input-group-sim">
+                        <label for="random-seed">Random Seed</label>
+                        <input type="number" id="random-seed" value="42" min="0">
+                        <span class="input-hint">Same seed = same results</span>
+                    </div>
+                </div>
+
+                <div class="checkbox-row">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="use-custom-probs" onchange="toggleCustomProbs()">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Customize Probabilities (Tweaked Mode)</span>
+                    </label>
+                </div>
+
+                <div class="custom-probs-section" id="custom-probs-container" style="display:none;">
+                    <p class="section-note">Adjust probability percentages for each number. Other probabilities auto-adjust to maintain 100% total.</p>
+                    
+                    <div class="probability-grid">
+                        <div class="prob-card green-prob">
+                            <div class="prob-number">0</div>
+                            <input type="range" class="prob-slider" data-number="0" value="7.69" min="0" max="50" step="0.1" oninput="updateProbFromSlider(0)">
+                            <input type="number" class="prob-input" id="prob-input-0" data-number="0" value="7.69" min="0" max="100" step="0.01" oninput="updateProbFromInput(0)">
+                            <span class="prob-label">%</span>
+                        </div>
+                        {% for i in range(1, 13) %}
+                        <div class="prob-card {% if i in [1,3,5,7,9,11] %}red-prob{% else %}black-prob{% endif %}" data-number="{{ i }}">
+                            <div class="prob-number">{{ i }}</div>
+                            <input type="range" class="prob-slider" data-number="{{ i }}" value="7.69" min="0" max="50" step="0.1" oninput="updateProbFromSlider({{ i }})">
+                            <input type="number" class="prob-input" id="prob-input-{{ i }}" data-number="{{ i }}" value="7.69" min="0" max="100" step="0.01" oninput="updateProbFromInput({{ i }})">
+                            <span class="prob-label">%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="prob-summary">
+                        <h4>Probability Distribution Summary</h4>
+                        <div class="summary-stats">
+                            <div class="summary-stat green-stat">
+                                <span class="stat-icon">🟢</span>
+                                <div class="stat-info">
+                                    <span class="stat-name">Green (0)</span>
+                                    <span class="stat-percent" id="green-total">7.69%</span>
+                                </div>
+                            </div>
+                            <div class="summary-stat red-stat">
+                                <span class="stat-icon">🔴</span>
+                                <div class="stat-info">
+                                    <span class="stat-name">Red (1,3,5,7,9,11)</span>
+                                    <span class="stat-percent" id="red-total">46.14%</span>
+                                </div>
+                            </div>
+                            <div class="summary-stat black-stat">
+                                <span class="stat-icon">⚫</span>
+                                <div class="stat-info">
+                                    <span class="stat-name">Black (2,4,6,8,10,12)</span>
+                                    <span class="stat-percent" id="black-total">46.14%</span>
+                                </div>
+                            </div>
+                            <div class="summary-stat odd-stat">
+                                <span class="stat-icon">🔢</span>
+                                <div class="stat-info">
+                                    <span class="stat-name">Odd (1,3,5,7,9,11)</span>
+                                    <span class="stat-percent" id="odd-total">46.14%</span>
+                                </div>
+                            </div>
+                            <div class="summary-stat even-stat">
+                                <span class="stat-icon">🔢</span>
+                                <div class="stat-info">
+                                    <span class="stat-name">Even (2,4,6,8,10,12)</span>
+                                    <span class="stat-percent" id="even-total">46.14%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prob-controls">
+                        <button onclick="equalizeProbs()" class="btn-modern btn-secondary">
+                            ⚖️ Equalize All (7.69%)
+                        </button>
+                        <button onclick="favorHouse()" class="btn-modern btn-warning">
+                            🏠 Favor House (15% on 0)
+                        </button>
+                        <button onclick="lockProbs()" class="btn-modern btn-secondary" id="lock-btn">
+                            🔓 Lock Current Distribution
+                        </button>
+                        <div class="prob-total">
+                            Total: <span id="prob-total">100.00</span>%
+                            <span id="prob-warning" class="prob-warning" style="display:none;">⚠️ Must equal 100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Run Button -->
+            <div class="sim-actions">
+                <button id="run-sim-btn" onclick="runSimulation()" class="btn-modern btn-primary btn-large">
+                    <span>▶</span> Run Simulation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-container" class="results-container" style="display:none;">
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card wins-card">
+                <div class="card-icon">✅</div>
+                <div class="card-content">
+                    <div class="card-label">Wins</div>
+                    <div class="card-value" id="total-wins">-</div>
+                    <div class="card-sub" id="win-rate">-</div>
+                </div>
+            </div>
+
+            <div class="summary-card losses-card">
+                <div class="card-icon">❌</div>
+                <div class="card-content">
+                    <div class="card-label">Losses</div>
+                    <div class="card-value" id="total-losses">-</div>
+                    <div class="card-sub" id="loss-rate">-</div>
+                </div>
+            </div>
+
+            <div class="summary-card profit-card">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <div class="card-label">Net Profit/Loss</div>
+                    <div class="card-value" id="net-profit">-</div>
+                    <div class="card-sub" id="profit-per-bet">-</div>
+                </div>
+            </div>
+
+            <div class="summary-card roi-card">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <div class="card-label">ROI</div>
+                    <div class="card-value" id="roi-value">-</div>
+                    <div class="card-sub" id="house-edge">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Statistics -->
+        <div class="stats-grid">
+            <div class="stat-panel modern-panel">
+                <h3>📊 Financial Statistics</h3>
+                <div class="stat-rows">
+                    <div class="stat-row">
+                        <span class="stat-name">Total Wagered:</span>
+                        <span class="stat-val" id="total-wagered">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Total Payout:</span>
+                        <span class="stat-val" id="total-payout">-</span>
+                    </div>
+                    <div class="stat-row highlight-row">
+                        <span class="stat-name">House Profit:</span>
+                        <span class="stat-val" id="house-profit">-</span>
+                    </div>
+                    <div class="stat-row highlight-row">
+                        <span class="stat-name">House Edge:</span>
+                        <span class="stat-val" id="house-edge-pct">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Expected Value per Bet:</span>
+                        <span class="stat-val" id="ev-per-bet">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-panel modern-panel">
+                <h3>🎯 Outcome Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="outcome-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit Tracking Chart -->
+        <div class="chart-panel modern-panel">
+            <h3>📈 Cumulative Profit Tracking</h3>
+            <p class="chart-description">Visual representation of profit/loss progression over simulations</p>
+            <div class="chart-container-large">
+                <canvas id="profit-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="insights-panel modern-panel">
+            <h3>💡 Actionable Insights</h3>
+            <div id="insights-content" class="insights-content">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="export-panel">
+            <button onclick="exportResults('json')" class="btn-modern btn-secondary">
+                📄 Export JSON
+            </button>
+            <button onclick="exportResults('csv')" class="btn-modern btn-secondary">
+                📊 Export CSV
+            </button>
+            <button onclick="resetSimulation()" class="btn-modern btn-warning">
+                🔄 New Simulation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let simulationData = null;
+    let profitChart = null;
+    let outcomeChart = null;
+
+    function updateBetOptions() {
+        const betType = document.getElementById('bet-type').value;
+        const betValueContainer = document.getElementById('bet-value-container');
+        const betValueSelect = document.getElementById('bet-value');
+        
+        betValueSelect.innerHTML = '';
+        
+        if (betType === 'number') {
+            for (let i = 0; i <= 12; i++) {
+                const color = i === 0 ? 'Green' : ([1,3,5,7,9,11].includes(i) ? 'Red' : 'Black');
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i} (${color})`;
+                betValueSelect.appendChild(option);
+            }
+        } else if (betType === 'color') {
+            ['red', 'black'].forEach(color => {
+                const option = document.createElement('option');
+                option.value = color;
+                option.textContent = color.charAt(0).toUpperCase() + color.slice(1);
+                betValueSelect.appendChild(option);
+            });
+        } else if (betType === 'parity') {
+            ['odd', 'even'].forEach(parity => {
+                const option = document.createElement('option');
+                option.value = parity;
+                option.textContent = parity.charAt(0).toUpperCase() + parity.slice(1);
+                betValueSelect.appendChild(option);
+            });
+        }
+    }
+
+    function toggleSeedInput() {
+        const useSeed = document.getElementById('use-seed').checked;
+        document.getElementById('seed-container').style.display = useSeed ? 'block' : 'none';
+    }
+
+    function toggleCustomProbs() {
+        const useCustom = document.getElementById('use-custom-probs').checked;
+        document.getElementById('custom-probs-container').style.display = useCustom ? 'block' : 'none';
+        if (useCustom) {
+            updateProbTotal();
+        }
+    }
+
+    function updateProbTotal() {
+        const inputs = document.querySelectorAll('.prob-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        
+        document.getElementById('prob-total').textContent = total.toFixed(2);
+        const warning = document.getElementById('prob-warning');
+        
+        if (Math.abs(total - 100) > 0.01) {
+            warning.style.display = 'inline';
+        } else {
+            warning.style.display = 'none';
+        }
+        
+        // Update summary statistics
+        updateSummaryStats();
+    }
+
+    let isLocked = false;
+    let lockedNumbers = new Set();
+
+    function updateProbFromSlider(number) {
+        const slider = document.querySelector(`.prob-slider[data-number="${number}"]`);
+        const input = document.getElementById(`prob-input-${number}`);
+        const newValue = parseFloat(slider.value);
+        
+        input.value = newValue.toFixed(2);
+        
+        if (!isLocked) {
+            redistributeProbabilities(number, newValue);
+        }
+        updateProbTotal();
+    }
+
+    function updateProbFromInput(number) {
+        const input = document.getElementById(`prob-input-${number}`);
+        const slider = document.querySelector(`.prob-slider[data-number="${number}"]`);
+        let newValue = parseFloat(input.value) || 0;
+        
+        // Clamp value
+        if (newValue > 100) newValue = 100;
+        if (newValue < 0) newValue = 0;
+        
+        input.value = newValue.toFixed(2);
+        slider.value = Math.min(newValue, 50); // Slider max is 50
+        
+        if (!isLocked) {
+            redistributeProbabilities(number, newValue);
+        }
+        updateProbTotal();
+    }
+
+    function redistributeProbabilities(changedNumber, newValue) {
+        // Get all probabilities
+        const probs = {};
+        let otherTotal = 0;
+        let otherCount = 0;
+        
+        for (let i = 0; i <= 12; i++) {
+            if (i === changedNumber) {
+                probs[i] = newValue;
+            } else {
+                const input = document.getElementById(`prob-input-${i}`);
+                probs[i] = parseFloat(input.value) || 0;
+                otherTotal += probs[i];
+                otherCount++;
+            }
+        }
+        
+        // Calculate how much to redistribute
+        const remaining = 100 - newValue;
+        
+        if (remaining < 0 || otherTotal === 0) {
+            // If new value exceeds 100, set others to 0
+            for (let i = 0; i <= 12; i++) {
+                if (i !== changedNumber) {
+                    const input = document.getElementById(`prob-input-${i}`);
+                    const slider = document.querySelector(`.prob-slider[data-number="${i}"]`);
+                    input.value = '0.00';
+                    slider.value = '0';
+                }
+            }
+        } else {
+            // Redistribute proportionally to maintain ratios
+            const scaleFactor = remaining / otherTotal;
+            
+            for (let i = 0; i <= 12; i++) {
+                if (i !== changedNumber) {
+                    const newProb = probs[i] * scaleFactor;
+                    const input = document.getElementById(`prob-input-${i}`);
+                    const slider = document.querySelector(`.prob-slider[data-number="${i}"]`);
+                    input.value = newProb.toFixed(2);
+                    slider.value = Math.min(newProb, 50).toFixed(2);
+                }
+            }
+        }
+    }
+
+    function updateSummaryStats() {
+        const redNumbers = [1, 3, 5, 7, 9, 11];
+        const blackNumbers = [2, 4, 6, 8, 10, 12];
+        const oddNumbers = [1, 3, 5, 7, 9, 11];
+        const evenNumbers = [2, 4, 6, 8, 10, 12];
+        
+        let greenTotal = parseFloat(document.getElementById('prob-input-0').value) || 0;
+        let redTotal = 0;
+        let blackTotal = 0;
+        let oddTotal = 0;
+        let evenTotal = 0;
+        
+        for (let i = 1; i <= 12; i++) {
+            const prob = parseFloat(document.getElementById(`prob-input-${i}`).value) || 0;
+            
+            if (redNumbers.includes(i)) {
+                redTotal += prob;
+            }
+            if (blackNumbers.includes(i)) {
+                blackTotal += prob;
+            }
+            if (oddNumbers.includes(i)) {
+                oddTotal += prob;
+            }
+            if (evenNumbers.includes(i)) {
+                evenTotal += prob;
+            }
+        }
+        
+        document.getElementById('green-total').textContent = greenTotal.toFixed(2) + '%';
+        document.getElementById('red-total').textContent = redTotal.toFixed(2) + '%';
+        document.getElementById('black-total').textContent = blackTotal.toFixed(2) + '%';
+        document.getElementById('odd-total').textContent = oddTotal.toFixed(2) + '%';
+        document.getElementById('even-total').textContent = evenTotal.toFixed(2) + '%';
+    }
+
+    function lockProbs() {
+        isLocked = !isLocked;
+        const btn = document.getElementById('lock-btn');
+        
+        if (isLocked) {
+            btn.innerHTML = '🔒 Unlock Distribution';
+            btn.classList.add('locked');
+            showToast('Auto-adjustment disabled. Manual control enabled.', 'info');
+        } else {
+            btn.innerHTML = '🔓 Lock Current Distribution';
+            btn.classList.remove('locked');
+            showToast('Auto-adjustment enabled.', 'info');
+        }
+    }
+
+    function equalizeProbs() {
+        const inputs = document.querySelectorAll('.prob-input');
+        const sliders = document.querySelectorAll('.prob-slider');
+        const equalValue = (100 / 13).toFixed(2);
+        
+        inputs.forEach(input => {
+            input.value = equalValue;
+        });
+        sliders.forEach(slider => {
+            slider.value = equalValue;
+        });
+        
+        updateProbTotal();
+    }
+
+    function favorHouse() {
+        // Set 0 to 15%
+        document.getElementById('prob-input-0').value = '15.00';
+        document.querySelector('.prob-slider[data-number="0"]').value = '15.00';
+        
+        // Distribute remaining 85% equally among others
+        const remainingValue = ((100 - 15) / 12).toFixed(2);
+        
+        for (let i = 1; i <= 12; i++) {
+            document.getElementById(`prob-input-${i}`).value = remainingValue;
+            document.querySelector(`.prob-slider[data-number="${i}"]`).value = Math.min(parseFloat(remainingValue), 50);
+        }
+        
+        updateProbTotal();
+    }
+
+    // Add event listeners to probability inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial summary update
+        updateSummaryStats();
+    });
+
+    async function runSimulation() {
+        const runs = parseInt(document.getElementById('sim-runs').value);
+        const betAmount = parseFloat(document.getElementById('bet-amount').value);
+        const betType = document.getElementById('bet-type').value;
+        const betValue = document.getElementById('bet-value').value;
+        const useSeed = document.getElementById('use-seed').checked;
+        const seed = useSeed ? parseInt(document.getElementById('random-seed').value) : null;
+        const useCustomProbs = document.getElementById('use-custom-probs').checked;
+        
+        // Validate custom probabilities
+        if (useCustomProbs) {
+            const total = parseFloat(document.getElementById('prob-total').textContent);
+            if (Math.abs(total - 100) > 0.01) {
+                showToast('Probabilities must total 100%', 'error');
+                return;
+            }
+        }
+        
+        // Collect custom probabilities
+        let customProbs = null;
+        if (useCustomProbs) {
+            customProbs = {};
+            document.querySelectorAll('.prob-input').forEach(input => {
+                customProbs[input.dataset.number] = parseFloat(input.value);
+            });
+        }
+        
+        const btn = document.getElementById('run-sim-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner">⏳</span> Running Simulation...';
+        
+        showToast(`🎲 Running ${runs.toLocaleString()} simulations...`, 'info');
+
+        try {
+            const response = await fetch('/run_simulation', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    n_runs: runs,
+                    bet_amount: betAmount,
+                    bet_type: betType,
+                    bet_value: betValue,
+                    seed: seed,
+                    custom_probabilities: customProbs
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                showToast(data.error, 'error');
+            } else {
+                simulationData = data;
+                displayResults(data);
+                showToast('✅ Simulation complete!', 'success');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Error running simulation. Please try again.', 'error');
+        }
+        
+        btn.disabled = false;
+        btn.innerHTML = '<span>▶</span> Run Simulation';
+    }
+
+    function displayResults(data) {
+        // Show results container
+        document.getElementById('results-container').style.display = 'block';
+        document.getElementById('results-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Summary Cards
+        document.getElementById('total-wins').textContent = data.wins.toLocaleString();
+        document.getElementById('win-rate').textContent = `Win Rate: ${data.win_rate.toFixed(2)}%`;
+        
+        document.getElementById('total-losses').textContent = data.losses.toLocaleString();
+        document.getElementById('loss-rate').textContent = `Loss Rate: ${data.loss_rate.toFixed(2)}%`;
+        
+        const netProfit = data.net_profit;
+        const profitElement = document.getElementById('net-profit');
+        profitElement.textContent = `$${netProfit.toFixed(2)}`;
+        profitElement.style.color = netProfit >= 0 ? '#10b981' : '#ef4444';
+        document.getElementById('profit-per-bet').textContent = `Per Bet: $${data.profit_per_bet.toFixed(2)}`;
+        
+        const roi = data.roi;
+        const roiElement = document.getElementById('roi-value');
+        roiElement.textContent = `${roi.toFixed(2)}%`;
+        roiElement.style.color = roi >= 0 ? '#10b981' : '#ef4444';
+        document.getElementById('house-edge').textContent = `House Edge: ${data.house_edge_percent.toFixed(2)}%`;
+        
+        // Financial Statistics
+        document.getElementById('total-wagered').textContent = `$${data.total_bet.toFixed(2)}`;
+        document.getElementById('total-payout').textContent = `$${data.total_payout.toFixed(2)}`;
+        document.getElementById('house-profit').textContent = `$${data.house_profit.toFixed(2)}`;
+        document.getElementById('house-edge-pct').textContent = `${data.house_edge_percent.toFixed(2)}%`;
+        document.getElementById('ev-per-bet').textContent = `$${data.expected_value_per_bet.toFixed(4)}`;
+        
+        // Charts
+        createOutcomeChart(data.outcome_distribution);
+        createProfitChart(data.cumulative_profits);
+        
+        // Insights
+        generateInsights(data);
+    }
+
+    function createOutcomeChart(distribution) {
+        const ctx = document.getElementById('outcome-chart');
+        
+        if (outcomeChart) {
+            outcomeChart.destroy();
+        }
+        
+        const labels = Object.keys(distribution).sort((a, b) => parseInt(a) - parseInt(b));
+        const values = labels.map(label => distribution[label]);
+        
+        const backgroundColors = labels.map(num => {
+            const n = parseInt(num);
+            if (n === 0) return 'rgba(34, 197, 94, 0.7)';
+            if ([1,3,5,7,9,11].includes(n)) return 'rgba(239, 68, 68, 0.7)';
+            return 'rgba(75, 85, 99, 0.7)';
+        });
+        
+        outcomeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Occurrences',
+                    data: values,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number Frequency Distribution'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Number'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function createProfitChart(cumulativeProfits) {
+        const ctx = document.getElementById('profit-chart');
+        
+        if (profitChart) {
+            profitChart.destroy();
+        }
+        
+        // Sample data if too many points (for performance)
+        let sampledData = cumulativeProfits;
+        let sampledLabels = cumulativeProfits.map((_, i) => i + 1);
+        
+        if (cumulativeProfits.length > 1000) {
+            const step = Math.floor(cumulativeProfits.length / 1000);
+            sampledData = cumulativeProfits.filter((_, i) => i % step === 0);
+            sampledLabels = sampledData.map((_, i) => (i * step) + 1);
+        }
+        
+        profitChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: sampledLabels,
+                datasets: [{
+                    label: 'Cumulative Profit ($)',
+                    data: sampledData,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Profit: $${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cumulative Profit ($)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Simulation Number'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function generateInsights(data) {
+        const container = document.getElementById('insights-content');
+        const insights = [];
+        
+        // ROI Analysis
+        if (data.roi < -5) {
+            insights.push({
+                icon: '⚠️',
+                type: 'warning',
+                title: 'Negative Expected Value',
+                text: `This bet has a ${Math.abs(data.roi).toFixed(2)}% negative ROI. Over time, you can expect to lose $${Math.abs(data.profit_per_bet).toFixed(2)} per bet on average.`
+            });
+        } else if (data.roi > 0) {
+            insights.push({
+                icon: '✨',
+                type: 'success',
+                title: 'Positive Expected Value',
+                text: `Congratulations! This configuration shows a positive ROI of ${data.roi.toFixed(2)}%. This suggests favorable odds.`
+            });
+        }
+        
+        // House Edge Analysis
+        if (data.house_edge_percent > 10) {
+            insights.push({
+                icon: '🏠',
+                type: 'warning',
+                title: 'High House Edge',
+                text: `The house edge is ${data.house_edge_percent.toFixed(2)}%, which is significantly higher than typical casino games. Consider different probability settings.`
+            });
+        } else if (data.house_edge_percent < 5) {
+            insights.push({
+                icon: '🎯',
+                type: 'info',
+                title: 'Favorable House Edge',
+                text: `The house edge of ${data.house_edge_percent.toFixed(2)}% is relatively low, giving players better odds compared to many casino games.`
+            });
+        }
+        
+        // Win Rate Analysis
+        if (data.win_rate > 50) {
+            insights.push({
+                icon: '🎊',
+                type: 'success',
+                title: 'High Win Rate',
+                text: `You won ${data.win_rate.toFixed(2)}% of simulations. However, remember that win rate doesn't always correlate with profitability due to payout ratios.`
+            });
+        } else if (data.win_rate < 20) {
+            insights.push({
+                icon: '📉',
+                type: 'info',
+                title: 'Low Win Frequency',
+                text: `This bet wins only ${data.win_rate.toFixed(2)}% of the time. While individual wins may have high payouts, losses are more frequent.`
+            });
+        }
+        
+        // Volatility Analysis
+        const maxProfit = Math.max(...data.cumulative_profits);
+        const minProfit = Math.min(...data.cumulative_profits);
+        const volatility = maxProfit - minProfit;
+        
+        insights.push({
+            icon: '📊',
+            type: 'info',
+            title: 'Volatility Analysis',
+            text: `Your bankroll fluctuated between $${minProfit.toFixed(2)} and $${maxProfit.toFixed(2)}, a range of $${volatility.toFixed(2)}. ${volatility > data.total_bet * 0.5 ? 'High volatility detected - significant swings expected.' : 'Moderate volatility - relatively stable progression.'}`
+        });
+        
+        // Strategic Recommendation
+        if (data.bet_type === 'number') {
+            insights.push({
+                icon: '💡',
+                type: 'tip',
+                title: 'Strategy Tip',
+                text: 'Number bets offer high payouts but low win rates. Consider color or parity bets for more consistent (but smaller) returns.'
+            });
+        } else {
+            insights.push({
+                icon: '💡',
+                type: 'tip',
+                title: 'Strategy Tip',
+                text: 'Outside bets (color/parity) offer better win rates but lower payouts. Consider your risk tolerance and bankroll size.'
+            });
+        }
+        
+        // Render insights
+        container.innerHTML = insights.map(insight => `
+            <div class="insight-card ${insight.type}">
+                <div class="insight-icon">${insight.icon}</div>
+                <div class="insight-content">
+                    <h4>${insight.title}</h4>
+                    <p>${insight.text}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function exportResults(format) {
+        if (!simulationData) {
+            showToast('No simulation data to export', 'warning');
+            return;
+        }
+        
+        if (format === 'json') {
+            const dataStr = JSON.stringify(simulationData, null, 2);
+            downloadFile(dataStr, 'simulation_results.json', 'application/json');
+            showToast('JSON exported successfully', 'success');
+        } else if (format === 'csv') {
+            const csv = convertToCSV(simulationData);
+            downloadFile(csv, 'simulation_results.csv', 'text/csv');
+            showToast('CSV exported successfully', 'success');
+        }
+    }
+
+    function convertToCSV(data) {
+        let csv = 'Metric,Value\n';
+        csv += `Total Simulations,${data.runs}\n`;
+        csv += `Bet Type,${data.bet_type}\n`;
+        csv += `Bet Value,${data.bet_value}\n`;
+        csv += `Bet Amount,$${data.bet_amount}\n`;
+        csv += `Total Wins,${data.wins}\n`;
+        csv += `Total Losses,${data.losses}\n`;
+        csv += `Win Rate,${data.win_rate}%\n`;
+        csv += `Total Wagered,$${data.total_bet}\n`;
+        csv += `Total Payout,$${data.total_payout}\n`;
+        csv += `Net Profit,$${data.net_profit}\n`;
+        csv += `ROI,${data.roi}%\n`;
+        csv += `House Profit,$${data.house_profit}\n`;
+        csv += `House Edge,${data.house_edge_percent}%\n`;
+        csv += `Expected Value per Bet,$${data.expected_value_per_bet}\n`;
+        return csv;
+    }
+
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function resetSimulation() {
+        document.getElementById('results-container').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Ready for new simulation', 'info');
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Initialize
+    updateBetOptions();
+</script>
+{% endblock %}

@@ -36,17 +36,59 @@
         <div class="panel modern-panel">
             <div class="panel-header">
                 <h3>🎲 Game Configuration</h3>
-                <p class="panel-description">Adjust probability weights for each number. Higher weights increase the chance of that number appearing.</p>
+                <p class="panel-description">Adjust probability percentages for each number. Other probabilities auto-adjust to maintain 100% total.</p>
             </div>
             
             <div class="weights-grid">
                 {% for i in range(13) %}
                 <div class="weight-card {% if i == 0 %}green-number{% elif i in [1,3,5,7,9,11] %}red-number{% else %}black-number{% endif %}">
                     <div class="number-label">{{ i }}</div>
-                    <input type="number" class="weight-val modern-input" data-number="{{ i }}" value="{{ weights[i] }}" min="0" max="100">
-                    <div class="weight-label">Weight</div>
+                    <input type="range" class="weight-slider" data-number="{{ i }}" value="7.69" min="0" max="50" step="0.1" oninput="updateWeightFromSlider({{ i }})">
+                    <input type="number" class="weight-val modern-input" id="weight-input-{{ i }}" data-number="{{ i }}" value="7.69" min="0" max="100" step="0.01" oninput="updateWeightFromInput({{ i }})">
+                    <div class="weight-label">%</div>
                 </div>
                 {% endfor %}
+            </div>
+
+            <div class="prob-summary">
+                <h4>Probability Distribution Summary</h4>
+                <div class="summary-stats">
+                    <div class="summary-stat green-stat">
+                        <span class="stat-icon">🟢</span>
+                        <div class="stat-info">
+                            <span class="stat-name">Green (0)</span>
+                            <span class="stat-percent" id="admin-green-total">7.69%</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat red-stat">
+                        <span class="stat-icon">🔴</span>
+                        <div class="stat-info">
+                            <span class="stat-name">Red (1,3,5,7,9,11)</span>
+                            <span class="stat-percent" id="admin-red-total">46.14%</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat black-stat">
+                        <span class="stat-icon">⚫</span>
+                        <div class="stat-info">
+                            <span class="stat-name">Black (2,4,6,8,10,12)</span>
+                            <span class="stat-percent" id="admin-black-total">46.14%</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat odd-stat">
+                        <span class="stat-icon">🔢</span>
+                        <div class="stat-info">
+                            <span class="stat-name">Odd (1,3,5,7,9,11)</span>
+                            <span class="stat-percent" id="admin-odd-total">46.14%</span>
+                        </div>
+                    </div>
+                    <div class="summary-stat even-stat">
+                        <span class="stat-icon">🔢</span>
+                        <div class="stat-info">
+                            <span class="stat-name">Even (2,4,6,8,10,12)</span>
+                            <span class="stat-percent" id="admin-even-total">46.14%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="toggle-box modern-toggle">
@@ -56,7 +98,7 @@
                 </label>
                 <div class="toggle-text">
                     <strong>Tweaked Mode</strong>
-                    <span class="toggle-desc">Enable custom weights in live game</span>
+                    <span class="toggle-desc">Enable custom probabilities in live game</span>
                 </div>
             </div>
             
@@ -67,63 +109,12 @@
                 <button onclick="resetGame()" class="btn-modern btn-warning">
                     <span>↻</span> Reset to Fair
                 </button>
+                <button onclick="adminLockProbs()" class="btn-modern btn-secondary" id="admin-lock-btn">
+                    🔓 Lock Distribution
+                </button>
                 <button onclick="tryGame()" class="btn-modern btn-info">
                      Test Game
                 </button>
-            </div>
-        </div>
-
-        <div class="panel modern-panel">
-            <div class="panel-header">
-                <h3>Monte Carlo Simulation</h3>
-                <p class="panel-description">Compare expected outcomes between fair and tweaked probability models.</p>
-            </div>
-            
-            <div class="sim-controls">
-                <div class="input-group-modern">
-                    <label for="sim-runs">Simulation Runs</label>
-                    <input type="number" id="sim-runs" value="10000" min="100" max="1000000" step="1000">
-                </div>
-                <button onclick="runSimulation()" class="btn-modern btn-primary">
-                    <span>▶</span> Run Simulation
-                </button>
-            </div>
-            
-            <div id="sim-results" class="sim-results" style="display:none;">
-                <h4 class="results-title">Simulation Results</h4>
-                <div class="results-cards">
-                    <div class="result-card fair-card">
-                        <h5>Fair Model</h5>
-                        <div class="stat">
-                            <span class="stat-label">Total Bet</span>
-                            <span class="stat-value" id="fair-bet">-</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">House Profit</span>
-                            <span class="stat-value" id="fair-profit">-</span>
-                        </div>
-                        <div class="stat highlight">
-                            <span class="stat-label">House Edge</span>
-                            <span class="stat-value" id="fair-edge">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="result-card tweaked-card">
-                        <h5>Tweaked Model</h5>
-                        <div class="stat">
-                            <span class="stat-label">Total Bet</span>
-                            <span class="stat-value" id="tweaked-bet">-</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">House Profit</span>
-                            <span class="stat-value" id="tweaked-profit">-</span>
-                        </div>
-                        <div class="stat highlight">
-                            <span class="stat-label">House Edge</span>
-                            <span class="stat-value" id="tweaked-edge">-</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -288,11 +279,152 @@
         event.target.classList.add('active');
     }
 
+    // Admin weight management with auto-adjustment
+    let adminIsLocked = false;
+
+    function updateWeightFromSlider(number) {
+        const slider = document.querySelector(`.weight-slider[data-number="${number}"]`);
+        const input = document.getElementById(`weight-input-${number}`);
+        const newValue = parseFloat(slider.value);
+        
+        input.value = newValue.toFixed(2);
+        
+        if (!adminIsLocked) {
+            redistributeWeights(number, newValue);
+        }
+        updateAdminSummaryStats();
+    }
+
+    function updateWeightFromInput(number) {
+        const input = document.getElementById(`weight-input-${number}`);
+        const slider = document.querySelector(`.weight-slider[data-number="${number}"]`);
+        let newValue = parseFloat(input.value) || 0;
+        
+        if (newValue > 100) newValue = 100;
+        if (newValue < 0) newValue = 0;
+        
+        input.value = newValue.toFixed(2);
+        slider.value = Math.min(newValue, 50);
+        
+        if (!adminIsLocked) {
+            redistributeWeights(number, newValue);
+        }
+        updateAdminSummaryStats();
+    }
+
+    function redistributeWeights(changedNumber, newValue) {
+        const weights = {};
+        let otherTotal = 0;
+        
+        for (let i = 0; i <= 12; i++) {
+            if (i === changedNumber) {
+                weights[i] = newValue;
+            } else {
+                const input = document.getElementById(`weight-input-${i}`);
+                weights[i] = parseFloat(input.value) || 0;
+                otherTotal += weights[i];
+            }
+        }
+        
+        const remaining = 100 - newValue;
+        
+        if (remaining < 0 || otherTotal === 0) {
+            for (let i = 0; i <= 12; i++) {
+                if (i !== changedNumber) {
+                    const input = document.getElementById(`weight-input-${i}`);
+                    const slider = document.querySelector(`.weight-slider[data-number="${i}"]`);
+                    input.value = '0.00';
+                    slider.value = '0';
+                }
+            }
+        } else {
+            const scaleFactor = remaining / otherTotal;
+            
+            for (let i = 0; i <= 12; i++) {
+                if (i !== changedNumber) {
+                    const newWeight = weights[i] * scaleFactor;
+                    const input = document.getElementById(`weight-input-${i}`);
+                    const slider = document.querySelector(`.weight-slider[data-number="${i}"]`);
+                    input.value = newWeight.toFixed(2);
+                    slider.value = Math.min(newWeight, 50).toFixed(2);
+                }
+            }
+        }
+    }
+
+    function updateAdminSummaryStats() {
+        const redNumbers = [1, 3, 5, 7, 9, 11];
+        const blackNumbers = [2, 4, 6, 8, 10, 12];
+        const oddNumbers = [1, 3, 5, 7, 9, 11];
+        const evenNumbers = [2, 4, 6, 8, 10, 12];
+        
+        let greenTotal = parseFloat(document.getElementById('weight-input-0').value) || 0;
+        let redTotal = 0;
+        let blackTotal = 0;
+        let oddTotal = 0;
+        let evenTotal = 0;
+        
+        for (let i = 1; i <= 12; i++) {
+            const weight = parseFloat(document.getElementById(`weight-input-${i}`).value) || 0;
+            
+            if (redNumbers.includes(i)) redTotal += weight;
+            if (blackNumbers.includes(i)) blackTotal += weight;
+            if (oddNumbers.includes(i)) oddTotal += weight;
+            if (evenNumbers.includes(i)) evenTotal += weight;
+        }
+        
+        document.getElementById('admin-green-total').textContent = greenTotal.toFixed(2) + '%';
+        document.getElementById('admin-red-total').textContent = redTotal.toFixed(2) + '%';
+        document.getElementById('admin-black-total').textContent = blackTotal.toFixed(2) + '%';
+        document.getElementById('admin-odd-total').textContent = oddTotal.toFixed(2) + '%';
+        document.getElementById('admin-even-total').textContent = evenTotal.toFixed(2) + '%';
+    }
+
+    function adminLockProbs() {
+        adminIsLocked = !adminIsLocked;
+        const btn = document.getElementById('admin-lock-btn');
+        
+        if (adminIsLocked) {
+            btn.innerHTML = '🔒 Unlock Distribution';
+            btn.classList.add('locked');
+            showToast('Auto-adjustment disabled. Manual control enabled.', 'info');
+        } else {
+            btn.innerHTML = '🔓 Lock Distribution';
+            btn.classList.remove('locked');
+            showToast('Auto-adjustment enabled.', 'info');
+        }
+    }
+
+    // Initialize weights from server data
+    function initializeWeights() {
+        const serverWeights = {{ weights | tojson }};
+        
+        // Convert weights to percentages
+        const totalWeight = serverWeights.reduce((a, b) => a + b, 0);
+        
+        for (let i = 0; i <= 12; i++) {
+            const percentage = (serverWeights[i] / totalWeight * 100);
+            const input = document.getElementById(`weight-input-${i}`);
+            const slider = document.querySelector(`.weight-slider[data-number="${i}"]`);
+            
+            input.value = percentage.toFixed(2);
+            slider.value = Math.min(percentage, 50).toFixed(2);
+        }
+        
+        updateAdminSummaryStats();
+    }
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', initializeWeights);
+
     async function saveSettings() {
-        const weights = [];
+        const percentages = [];
         document.querySelectorAll('.weight-val').forEach(input => {
-            weights.push(parseInt(input.value));
+            percentages.push(parseFloat(input.value));
         });
+        
+        // Convert percentages to weights (proportional values)
+        const weights = percentages.map(p => Math.round(p * 100));
         const useTweaked = document.getElementById('use-tweaked').checked;
 
         const response = await fetch('/admin/update_settings', {
@@ -325,37 +457,6 @@
     function tryGame() {
         window.open('/game', '_blank');
         showToast('Opening game in new window...', 'info');
-    }
-
-    async function runSimulation() {
-        const runs = document.getElementById('sim-runs').value;
-        const btn = event.target;
-        btn.disabled = true;
-        btn.innerText = 'Running...';
-        
-        showToast(`🎲 Running ${runs} simulations...`, 'info');
-
-        const response = await fetch('/admin/simulate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ n_runs: runs })
-        });
-        
-        const data = await response.json();
-        
-        document.getElementById('fair-bet').innerText = data.fair.total_bet;
-        document.getElementById('fair-profit').innerText = data.fair.house_profit.toFixed(2);
-        document.getElementById('fair-edge').innerText = data.fair.house_edge_percent.toFixed(2) + '%';
-        
-        document.getElementById('tweaked-bet').innerText = data.tweaked.total_bet;
-        document.getElementById('tweaked-profit').innerText = data.tweaked.house_profit.toFixed(2);
-        document.getElementById('tweaked-edge').innerText = data.tweaked.house_edge_percent.toFixed(2) + '%';
-        
-        document.getElementById('sim-results').style.display = 'block';
-        btn.disabled = false;
-        btn.innerText = 'Run Simulation';
-        
-        showToast('✅ Simulation complete!', 'success');
     }
 
     async function handleRequest(requestId, action) {

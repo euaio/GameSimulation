@@ -3,7 +3,7 @@
 {% block content %}
 <div class="auth-wrapper">
     <div class="auth-card">
-        <h2 id="form-title">🎰 Login</h2>
+        <h2 id="form-title">Login</h2>
         
         <!-- Login Form -->
         <form id="login-form" method="POST" class="active-form">
@@ -19,6 +19,7 @@
             <div class="auth-options">
                 <button type="button" class="btn-secondary" onclick="showRegister()">Create New Account</button>
                 <button type="button" class="btn-admin" onclick="showAdminLogin()">Admin Panel</button>
+                <button type="button" class="btn-simulation" onclick="goToSimulation()">Monte Carlo Simulation</button>
             </div>
         </form>
 
@@ -80,6 +81,10 @@
             form.classList.remove('active-form');
             form.classList.add('hidden-form');
         });
+    }
+
+    function goToSimulation() {
+        window.location.href = '/simulation';
     }
 </script>
 {% endblock %}

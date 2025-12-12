@@ -68,17 +68,29 @@ class RouletteGame:
         else:
             return 0
 
-    def simulate_runs(self, n_runs, is_tweaked=False, custom_weights=None):
-        results = []
-        # Simulation assumes a mix of bets or a specific strategy.
-        # For simplicity, let's simulate a player betting 10 units on 'Red' every time.
-        bet_type = 'color'
-        bet_value = 'red'
-        bet_amount = 10
+    def simulate_runs(self, n_runs, bet_type='color', bet_value='red', bet_amount=10, 
+                     is_tweaked=False, custom_weights=None, seed=None):
+        """
+        Enhanced simulation with detailed statistics and tracking.
+        
+        Args:
+            n_runs: Number of simulations to run
+            bet_type: 'number', 'color', or 'parity'
+            bet_value: Specific value for the bet type
+            bet_amount: Amount to bet per simulation
+            is_tweaked: Whether to use tweaked weights
+            custom_weights: Optional custom weight distribution
+            seed: Optional random seed for reproducibility
+        """
+        if seed is not None:
+            random.seed(seed)
         
         total_bet = 0
         total_payout = 0
         wins = 0
+        cumulative_profits = []
+        outcome_distribution = {str(i): 0 for i in range(13)}
+        running_profit = 0
         
         for _ in range(n_runs):
             outcome = self.spin(is_tweaked, custom_weights)
@@ -86,18 +98,45 @@ class RouletteGame:
             
             total_bet += bet_amount
             total_payout += payout
+            
+            # Track profit/loss
+            profit_this_round = payout - bet_amount
+            running_profit += profit_this_round
+            cumulative_profits.append(running_profit)
+            
+            # Track outcome distribution
+            outcome_distribution[str(outcome)] += 1
+            
             if payout > 0:
                 wins += 1
-                
+        
+        losses = n_runs - wins
         house_profit = total_bet - total_payout
         house_edge_percent = (house_profit / total_bet) * 100 if total_bet > 0 else 0
+        win_rate = (wins / n_runs) * 100 if n_runs > 0 else 0
+        loss_rate = (losses / n_runs) * 100 if n_runs > 0 else 0
+        net_profit = total_payout - total_bet
+        roi = (net_profit / total_bet) * 100 if total_bet > 0 else 0
+        profit_per_bet = net_profit / n_runs if n_runs > 0 else 0
+        expected_value_per_bet = net_profit / n_runs if n_runs > 0 else 0
         
         return {
             'runs': n_runs,
+            'bet_type': bet_type,
+            'bet_value': str(bet_value),
+            'bet_amount': bet_amount,
             'total_bet': total_bet,
             'total_payout': total_payout,
             'house_profit': house_profit,
             'house_edge_percent': house_edge_percent,
             'wins': wins,
-            'losses': n_runs - wins
+            'losses': losses,
+            'win_rate': win_rate,
+            'loss_rate': loss_rate,
+            'net_profit': net_profit,
+            'roi': roi,
+            'profit_per_bet': profit_per_bet,
+            'expected_value_per_bet': expected_value_per_bet,
+            'cumulative_profits': cumulative_profits,
+            'outcome_distribution': outcome_distribution
         }

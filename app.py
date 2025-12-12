@@ -193,15 +193,69 @@ def simulate():
     n_runs = int(request.json.get('n_runs', 1000))
     
     # Run Fair Simulation
-    fair_results = game.simulate_runs(n_runs, is_tweaked=False)
+    fair_results = game.simulate_runs(n_runs, bet_type='color', bet_value='red', bet_amount=10, is_tweaked=False)
     
     # Run Tweaked Simulation
-    tweaked_results = game.simulate_runs(n_runs, is_tweaked=True)
+    tweaked_results = game.simulate_runs(n_runs, bet_type='color', bet_value='red', bet_amount=10, is_tweaked=True)
     
     return jsonify({
         'fair': fair_results,
         'tweaked': tweaked_results
     })
+
+@app.route('/simulation')
+def simulation():
+    """Route to the Monte Carlo simulation page (accessible without login)"""
+    return render_template('simulation.html')
+
+@app.route('/run_simulation', methods=['POST'])
+def run_simulation():
+    """Enhanced simulation endpoint with all new features"""
+    try:
+        data = request.json
+        n_runs = int(data.get('n_runs', 10000))
+        bet_amount = float(data.get('bet_amount', 10))
+        bet_type = data.get('bet_type', 'color')
+        bet_value = data.get('bet_value', 'red')
+        seed = data.get('seed')
+        custom_probabilities = data.get('custom_probabilities')
+        
+        # Validate inputs
+        if n_runs <= 0 or n_runs > 10000000:
+            return jsonify({'error': 'Number of runs must be between 1 and 10,000,000'}), 400
+        
+        if bet_amount <= 0:
+            return jsonify({'error': 'Bet amount must be positive'}), 400
+        
+        # Convert custom probabilities from percentages to weights
+        custom_weights = None
+        if custom_probabilities:
+            custom_weights = []
+            total_prob = sum(float(custom_probabilities[str(i)]) for i in range(13))
+            
+            # Normalize if not exactly 100
+            for i in range(13):
+                prob = float(custom_probabilities[str(i)])
+                # Convert percentage to weight (proportional)
+                weight = prob / (100 / 13)  # Normalize to fair weight of 1
+                custom_weights.append(weight)
+        
+        # Run simulation
+        is_tweaked = custom_weights is not None
+        results = game.simulate_runs(
+            n_runs=n_runs,
+            bet_type=bet_type,
+            bet_value=bet_value,
+            bet_amount=bet_amount,
+            is_tweaked=is_tweaked,
+            custom_weights=custom_weights,
+            seed=seed
+        )
+        
+        return jsonify(results)
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/request_money', methods=['POST'])
 @login_required
