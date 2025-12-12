@@ -3,22 +3,22 @@
 {% block content %}
 <div class="auth-wrapper">
     <div class="auth-card">
-        <h2 id="form-title">Login</h2>
+        <h2 id="form-title">🎰 Login</h2>
         
         <!-- Login Form -->
         <form id="login-form" method="POST" class="active-form">
             <input type="hidden" name="action" value="login">
             <div class="input-group">
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" placeholder="👤 Username" required>
             </div>
             <div class="input-group">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="🔒 Password" required>
             </div>
             <button type="submit" class="btn-primary">Login</button>
             
             <div class="auth-options">
-                <button type="button" class="btn-secondary" onclick="showRegister()">Register</button>
-                <button type="button" class="btn-admin" onclick="showAdminLogin()">Login as Admin</button>
+                <button type="button" class="btn-secondary" onclick="showRegister()">Create New Account</button>
+                <button type="button" class="btn-admin" onclick="showAdminLogin()">Admin Panel</button>
             </div>
         </form>
 
@@ -26,15 +26,15 @@
         <form id="register-form" method="POST" class="hidden-form">
             <input type="hidden" name="action" value="register">
             <div class="input-group">
-                <input type="text" name="username" placeholder="Choose Username" required>
+                <input type="text" name="username" placeholder="👤 Choose Username" required>
             </div>
             <div class="input-group">
-                <input type="password" name="password" placeholder="Choose Password" required>
+                <input type="password" name="password" placeholder="🔒 Choose Password" required>
             </div>
             <button type="submit" class="btn-secondary">Create Account</button>
             
             <div class="auth-options">
-                <button type="button" class="btn-link" onclick="showLogin()">Back to Login</button>
+                <button type="button" class="btn-link" onclick="showLogin()">← Back to Login</button>
             </div>
         </form>
 
@@ -42,15 +42,15 @@
         <form id="admin-form" method="POST" class="hidden-form">
             <input type="hidden" name="action" value="admin_login">
             <div class="input-group">
-                <input type="text" name="username" placeholder="Admin Username" required>
+                <input type="text" name="username" placeholder="👤 Admin Username" required>
             </div>
             <div class="input-group">
-                <input type="password" name="password" placeholder="Admin Password" required>
+                <input type="password" name="password" placeholder="🔒 Admin Password" required>
             </div>
-            <button type="submit" class="btn-admin">Login as Admin</button>
+            <button type="submit" class="btn-admin">Access Admin Panel</button>
             
             <div class="auth-options">
-                <button type="button" class="btn-link" onclick="showLogin()">Back to Login</button>
+                <button type="button" class="btn-link" onclick="showLogin()">← Back to Login</button>
             </div>
         </form>
     </div>
@@ -60,19 +60,19 @@
     function showLogin() {
         hideAll();
         document.getElementById('login-form').classList.add('active-form');
-        document.getElementById('form-title').innerText = 'Login';
+        document.getElementById('form-title').innerText = '🎰 Login';
     }
 
     function showRegister() {
         hideAll();
         document.getElementById('register-form').classList.add('active-form');
-        document.getElementById('form-title').innerText = 'Register';
+        document.getElementById('form-title').innerText = '📝 Register';
     }
 
     function showAdminLogin() {
         hideAll();
         document.getElementById('admin-form').classList.add('active-form');
-        document.getElementById('form-title').innerText = 'Admin Login';
+        document.getElementById('form-title').innerText = '🔐 Admin Login';
     }
 
     function hideAll() {

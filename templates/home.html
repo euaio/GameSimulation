@@ -2,10 +2,10 @@
 
 {% block content %}
 <nav class="user-nav">
-    <div class="logo">Roulette Game</div>
+    <div class="logo">🎰 Roulette Game</div>
     <div class="user-info" onclick="showMoneyModal()">
         <span class="username">{{ current_user.username }}</span>
-        <span class="balance">${{ "%.2f"|format(current_user.balance) }}</span>
+        <span class="balance">💰 ${{ "%.2f"|format(current_user.balance) }}</span>
     </div>
 </nav>
 
@@ -17,8 +17,8 @@
 <div id="money-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeMoneyModal()">&times;</span>
-        <h3>Request Money</h3>
-        <p>Current Balance: ${{ "%.2f"|format(current_user.balance) }}</p>
+        <h3>💸 Request Money</h3>
+        <p>Current Balance: <strong>${{ "%.2f"|format(current_user.balance) }}</strong></p>
         <input type="number" id="money-amount" placeholder="Enter amount" min="1" step="0.01">
         <button onclick="requestMoney()">Send Request to Admin</button>
     </div>

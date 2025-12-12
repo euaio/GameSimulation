@@ -1,8 +1,8 @@
 <div class="game-container">
-    <h2>Roulette (0-12)</h2>
+    <h2>🎯 Roulette (0-12)</h2>
     
     <div class="wheel-result" id="result-display">
-        Ready to Spin
+        🎰 Ready to Spin
     </div>
 
     <div class="betting-board">
@@ -26,20 +26,20 @@
             </div>
 
             <div class="outside-bets">
-                <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">RED (x2)</button>
-                <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">BLACK (x2)</button>
-                <button class="bet-btn" onclick="placeBet('parity', 'even')">EVEN (x2)</button>
-                <button class="bet-btn" onclick="placeBet('parity', 'odd')">ODD (x2)</button>
+                <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">🔴 RED (x2)</button>
+                <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">⚫ BLACK (x2)</button>
+                <button class="bet-btn" onclick="placeBet('parity', 'even')">📊 EVEN (x2)</button>
+                <button class="bet-btn" onclick="placeBet('parity', 'odd')">📈 ODD (x2)</button>
             </div>
         </div>
         
         <div class="bet-controls">
             <div class="bet-amount-box">
-                <label for="bet-amount">Bet Amount</label>
+                <label for="bet-amount">💵 Bet Amount</label>
                 <input type="number" id="bet-amount" value="10" min="1">
             </div>
             <div id="current-bet" class="current-bet-display">No bet selected</div>
-            <button id="spin-btn" class="spin-button" onclick="spinWheel()" disabled>SPIN</button>
+            <button id="spin-btn" class="spin-button" onclick="spinWheel()" disabled>🎰 SPIN</button>
         </div>
     </div>
 </div>
