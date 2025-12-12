@@ -1090,23 +1090,134 @@ th, td {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Base layout */
+    body {
+        font-size: 14px;
+    }
+    
+    nav {
+        padding: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    /* Auth pages */
     .auth-card {
-        width: 90%;
-        padding: 2.5rem;
-        padding: 2rem;
+        width: 95%;
+        padding: 2rem 1.5rem;
+        margin: 1rem auto;
+    }
+    
+    .auth-card h2 {
+        font-size: 1.8rem;
+    }
+    
+    .input-group input {
+        font-size: 1rem;
+        padding: 14px 18px;
+    }
+    
+    .btn-primary,
+    .btn-secondary,
+    .btn-admin {
+        font-size: 1rem;
+        padding: 14px;
+    }
+    
+    /* User Navigation */
+    .user-nav {
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .user-info {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .username {
+        font-size: 1rem;
+    }
+    
+    .balance {
+        font-size: 1.2rem;
+    }
+    
+    .logout-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Game Board */
+    .game-wrapper {
+        padding: 1rem;
+    }
+    
+    .game-container {
+        padding: 1rem;
+    }
+    
+    .game-container h2 {
+        font-size: 1.5rem;
     }
     
     .betting-board {
         flex-direction: column;
-        padding: 1.5rem;
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .bet-section {
+        width: 100%;
     }
     
     .bet-controls {
         min-width: 100%;
+        width: 100%;
+        padding: 1rem;
     }
     
     .payout-info {
         padding: 1rem;
+    }
+    
+    .payout-info h4 {
+        font-size: 1.1rem;
+    }
+    
+    .payout-item {
+        padding: 0.6rem 0;
+    }
+    
+    .payout-label {
+        font-size: 0.9rem;
+    }
+    
+    .payout-value {
+        font-size: 1.2rem;
+    }
+    
+    .bet-amount-box input {
+        font-size: 1.1rem;
+        padding: 10px;
+    }
+    
+    .current-bet-display {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    
+    .spin-button {
+        font-size: 1.2rem;
+        padding: 14px;
     }
     
     .floating-amount {
@@ -1119,47 +1230,75 @@ th, td {
     
     .numbers-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    
+    .bet-btn {
+        font-size: 1.1rem;
+        padding: 12px 8px;
+    }
+    
+    .outside-bets {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .outside-bets .bet-btn {
+        padding: 14px;
+        font-size: 1rem;
     }
     
     .wheel-result {
-        width: 220px;
-        height: 220px;
+        width: 200px;
+        height: 200px;
         font-size: 2rem;
+        margin: 1.5rem auto;
+    }
+    
+    /* Admin Panel */
+    .admin-nav {
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .admin-container {
+        padding: 1rem;
     }
     
     .admin-tabs {
-        flex-direction: column;
-        gap: 10px;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0.5rem;
+    }
+    
+    .tab-btn {
+        flex: 1 1 auto;
+        min-width: 120px;
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .tab-icon {
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .modern-panel {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .panel-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .panel-description {
+        font-size: 0.85rem;
     }
     
     .weights-grid {
         grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-    }
-    
-    .toast {
-        width: 90%;
-        right: 5%;
-    }
-}
-
-@media (max-width: 480px) {
-    h1, h2 {
-        font-size: 1.5rem;
-    }
-    
-    .numbers-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .wheel-result {
-        width: 180px;
-        height: 180px;
-        font-size: 1.5rem;
-    }
-    
-    .weights-grid {
-        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
     
@@ -1168,20 +1307,270 @@ th, td {
     }
     
     .number-label {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
     
     .modern-input {
+        font-size: 0.9rem;
+        padding: 6px 4px;
+    }
+    
+    .modern-toggle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 1rem;
+    }
+    
+    .modern-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-modern {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+    }
+    
+    .sim-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .input-group-modern {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .results-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+    
+    /* Tables */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .modern-table {
+        min-width: 600px;
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        padding: 10px;
         font-size: 0.85rem;
-        padding: 5px 3px;
+    }
+    
+    .action-cell {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn-modern.btn-sm {
+        width: 100%;
+        padding: 8px 12px;
+    }
+    
+    .balance-input-group {
+        max-width: 120px;
+    }
+    
+    .balance-input {
+        width: 70px;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 90%;
+        padding: 2rem 1.5rem;
+        margin: 10% auto;
+    }
+    
+    .modal-content h3 {
+        font-size: 1.5rem;
+    }
+    
+    .modal-content input[type="number"] {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    
+    .modal-content button {
+        font-size: 1rem;
+        padding: 14px;
+    }
+    
+    /* Toast */
+    .toast {
+        width: 90%;
+        right: 5%;
+        left: 5%;
+        min-width: auto;
+        padding: 15px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Base */
+    body {
+        font-size: 13px;
+    }
+    
+    nav {
+        padding: 0.75rem;
+    }
+    
+    .logo {
+        font-size: 1rem;
+    }
+    
+    h1, h2 {
+        font-size: 1.3rem;
+    }
+    
+    .container {
+        padding: 0.5rem;
+    }
+    
+    /* Auth */
+    .auth-card {
+        width: 100%;
+        padding: 1.5rem 1rem;
+        margin: 0.5rem auto;
+    }
+    
+    .auth-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .input-group input {
+        font-size: 0.95rem;
+        padding: 12px 15px;
+    }
+    
+    .btn-primary,
+    .btn-secondary,
+    .btn-admin {
+        font-size: 0.95rem;
+        padding: 12px;
+    }
+    
+    .auth-options {
+        gap: 8px;
+    }
+    
+    /* User Nav */
+    .user-nav {
+        padding: 0.75rem;
+    }
+    
+    .user-nav .logo {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .user-info {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .username {
+        font-size: 0.9rem;
+    }
+    
+    .balance {
+        font-size: 1.1rem;
+    }
+    
+    .logout-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Game */
+    .game-wrapper {
+        padding: 0.5rem;
+    }
+    
+    .game-container {
+        padding: 0.75rem;
+    }
+    
+    .game-container h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .betting-board {
+        padding: 0.75rem;
+        gap: 1rem;
+    }
+    
+    .bet-controls {
+        padding: 0.75rem;
+    }
+    
+    .numbers-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    
+    .bet-btn {
+        font-size: 1rem;
+        padding: 10px 6px;
+        min-height: 45px;
+    }
+    
+    .outside-bets {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .outside-bets .bet-btn {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .wheel-result {
+        width: 150px;
+        height: 150px;
+        font-size: 1.5rem;
+        margin: 1rem auto;
+    }
+    
+    .wheel-result::before {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .payout-info {
+        padding: 0.75rem;
     }
     
     .payout-info h4 {
         font-size: 1rem;
+        margin-bottom: 0.75rem;
     }
     
     .payout-item {
         padding: 0.5rem 0;
+        flex-direction: column;
+        gap: 5px;
     }
     
     .payout-label {
@@ -1189,15 +1578,286 @@ th, td {
     }
     
     .payout-value {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
     
+    .bet-amount-box {
+        margin: 0.75rem 0;
+    }
+    
+    .bet-amount-box label {
+        font-size: 0.9rem;
+    }
+    
+    .bet-amount-box input {
+        font-size: 1rem;
+        padding: 8px;
+    }
+    
+    .current-bet-display {
+        font-size: 0.85rem;
+        padding: 8px;
+        margin: 0.75rem 0;
+    }
+    
+    .spin-button {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
+    
+    /* Floating messages */
     .floating-amount {
         font-size: 2.5rem;
     }
     
     .floating-label {
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    /* Admin */
+    .admin-nav {
+        padding: 0.75rem;
+    }
+    
+    .admin-badge {
+        font-size: 1rem;
+    }
+    
+    .admin-container {
+        padding: 0.5rem;
+    }
+    
+    .admin-tabs {
+        flex-direction: column;
+        gap: 6px;
+        padding: 0.5rem;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .tab-icon {
+        font-size: 0.9rem;
+    }
+    
+    .modern-panel {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .panel-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .panel-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .panel-description {
+        font-size: 0.8rem;
+    }
+    
+    .weights-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    
+    .weight-card {
+        padding: 8px 4px;
+    }
+    
+    .number-label {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+    
+    .modern-input {
+        font-size: 0.85rem;
+        padding: 5px 3px;
+    }
+    
+    .weight-label {
+        font-size: 0.65rem;
+    }
+    
+    .modern-toggle {
+        padding: 0.75rem;
+        gap: 10px;
+    }
+    
+    .switch {
+        width: 50px;
+        height: 28px;
+    }
+    
+    .slider:before {
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+    
+    .toggle-text strong {
+        font-size: 1rem;
+    }
+    
+    .toggle-desc {
+        font-size: 0.8rem;
+    }
+    
+    .modern-buttons {
+        gap: 8px;
+    }
+    
+    .btn-modern {
+        padding: 12px 18px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-modern span {
+        font-size: 1rem;
+    }
+    
+    .btn-modern.btn-sm {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .sim-controls {
+        gap: 12px;
+    }
+    
+    .input-group-modern label {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+    
+    .results-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .result-card {
+        padding: 1rem;
+    }
+    
+    .result-card h5 {
+        font-size: 1rem;
+    }
+    
+    .stat {
+        padding: 10px 0;
+    }
+    
+    .stat.highlight {
+        padding: 10px;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .stat-value {
+        font-size: 1rem;
+    }
+    
+    .stats-grid {
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+        gap: 12px;
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+    }
+    
+    /* Tables */
+    .modern-table {
+        min-width: 500px;
+        font-size: 0.8rem;
+    }
+    
+    .modern-table th,
+    .modern-table td {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .user-avatar {
         font-size: 1.2rem;
+    }
+    
+    .balance-input-group {
+        max-width: 100px;
+        padding: 4px 8px;
+    }
+    
+    .balance-input {
+        width: 60px;
+        font-size: 0.85rem;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem 1rem;
+        margin: 15% auto;
+    }
+    
+    .modal-content h3 {
+        font-size: 1.3rem;
+    }
+    
+    .modal-content p {
+        font-size: 0.9rem;
+    }
+    
+    .modal-content input[type="number"] {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+    
+    .modal-content button {
+        font-size: 0.95rem;
+        padding: 12px;
+    }
+    
+    .close {
+        font-size: 2rem;
+        right: 10px;
+        top: 10px;
+    }
+    
+    /* Toast */
+    .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        padding: 12px 15px;
+        font-size: 0.85rem;
+        min-width: auto;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
     }
 }
 
