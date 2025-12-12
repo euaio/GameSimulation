@@ -11,7 +11,7 @@
         <span class="admin-label">Administrator</span>
     </div>
     <a href="{{ url_for('logout') }}" class="logout-btn">
-        <span>🚪</span> Logout
+        Logout
     </a>
 </nav>
 
@@ -62,20 +62,20 @@
             
             <div class="button-group modern-buttons">
                 <button onclick="saveSettings()" class="btn-modern btn-primary">
-                    <span>💾</span> Save Settings
+                     Save Settings
                 </button>
                 <button onclick="resetGame()" class="btn-modern btn-warning">
                     <span>↻</span> Reset to Fair
                 </button>
                 <button onclick="tryGame()" class="btn-modern btn-info">
-                    <span>🎰</span> Test Game
+                     Test Game
                 </button>
             </div>
         </div>
 
         <div class="panel modern-panel">
             <div class="panel-header">
-                <h3>📈 Monte Carlo Simulation</h3>
+                <h3>Monte Carlo Simulation</h3>
                 <p class="panel-description">Compare expected outcomes between fair and tweaked probability models.</p>
             </div>
             
@@ -209,7 +209,7 @@
                             </td>
                             <td class="action-cell">
                                 <button onclick="updateBalance({{ user.id }})" class="btn-modern btn-primary btn-sm">
-                                    <span>💾</span> Update
+                                    Update
                                 </button>
                                 <button onclick="deleteUser({{ user.id }})" class="btn-modern btn-danger btn-sm">
                                     <span>🗑</span> Delete
