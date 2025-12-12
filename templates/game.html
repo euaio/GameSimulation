@@ -1,18 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if is_admin %}
 <nav class="user-nav">
-    <div class="logo">Admin Test Game</div>
+    <div class="logo">{% if is_admin %}🎮 Admin Test Game{% else %}🎰 Roulette Game{% endif %}</div>
+    {% if is_admin %}
     <a href="{{ url_for('admin') }}" class="logout-btn">← Back to Admin Panel</a>
+    {% else %}
+    <a href="{{ url_for('home') }}" class="logout-btn">← Back to Game</a>
+    {% endif %}
 </nav>
-{% endif %}
 
 <div class="game-container">
     <h2>Roulette (0-12)</h2>
     
     <div class="wheel-result" id="result-display">
-        Ready to Spin
+        Spin
     </div>
 
     <div class="betting-board">
@@ -37,8 +39,8 @@
         <div class="outside-bets">
             <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">🔴 RED</button>
             <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">⚫ BLACK</button>
-            <button class="bet-btn even-bet" onclick="placeBet('parity', 'even')">📊 EVEN</button>
-            <button class="bet-btn odd-bet" onclick="placeBet('parity', 'odd')">📈 ODD</button>
+            <button class="bet-btn even-bet" onclick="placeBet('parity', 'even')"> EVEN</button>
+            <button class="bet-btn odd-bet" onclick="placeBet('parity', 'odd')"> ODD</button>
         </div>
     </div>
 

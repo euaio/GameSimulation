@@ -15,15 +15,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    {% if not current_user.is_authenticated %}
     <nav>
         <div class="logo">🎰 Roulette Sim</div>
-        <div class="links">
-            {% if current_user.is_authenticated %}
-                <span>💰 Balance: ${{ "%.2f"|format(current_user.balance) }}</span>
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% endif %}
-        </div>
     </nav>
+    {% endif %}
     
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
