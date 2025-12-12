@@ -26,14 +26,30 @@
             </div>
 
             <div class="outside-bets">
-                <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">🔴 RED (x2)</button>
-                <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">⚫ BLACK (x2)</button>
-                <button class="bet-btn" onclick="placeBet('parity', 'even')">📊 EVEN (x2)</button>
-                <button class="bet-btn" onclick="placeBet('parity', 'odd')">📈 ODD (x2)</button>
+                <button class="bet-btn red-bet" onclick="placeBet('color', 'red')">🔴 RED</button>
+                <button class="bet-btn black-bet" onclick="placeBet('color', 'black')">⚫ BLACK</button>
+                <button class="bet-btn even-bet" onclick="placeBet('parity', 'even')">📊 EVEN</button>
+                <button class="bet-btn odd-bet" onclick="placeBet('parity', 'odd')">📈 ODD</button>
             </div>
         </div>
         
         <div class="bet-controls">
+            <div class="payout-info">
+                <h4>💰 Payout Guide</h4>
+                <div class="payout-item">
+                    <span class="payout-label">🎯 Single Number</span>
+                    <span class="payout-value">13x</span>
+                </div>
+                <div class="payout-item">
+                    <span class="payout-label">🔴 Red / ⚫ Black</span>
+                    <span class="payout-value">2x</span>
+                </div>
+                <div class="payout-item">
+                    <span class="payout-label">📊 Even / 📈 Odd</span>
+                    <span class="payout-value">2x</span>
+                </div>
+            </div>
+            
             <div class="bet-amount-box">
                 <label for="bet-amount">💵 Bet Amount</label>
                 <input type="number" id="bet-amount" value="10" min="1">
@@ -63,6 +79,31 @@
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // Floating Win/Loss Animation
+    function showFloatingWin(profit, totalPayout) {
+        const floatingMsg = document.createElement('div');
+        floatingMsg.className = 'floating-win';
+        floatingMsg.innerHTML = `
+            <div class="floating-amount">+$${profit.toFixed(2)}</div>
+            <div class="floating-label">YOU WIN!</div>
+        `;
+        document.querySelector('.game-container').appendChild(floatingMsg);
+        
+        setTimeout(() => floatingMsg.remove(), 2500);
+    }
+
+    function showFloatingLoss(amount) {
+        const floatingMsg = document.createElement('div');
+        floatingMsg.className = 'floating-loss';
+        floatingMsg.innerHTML = `
+            <div class="floating-amount">-$${amount}</div>
+            <div class="floating-label">Better Luck Next Time</div>
+        `;
+        document.querySelector('.game-container').appendChild(floatingMsg);
+        
+        setTimeout(() => floatingMsg.remove(), 2500);
     }
 
     function placeBet(type, value) {
@@ -112,22 +153,25 @@
                 
                 if (data.error) {
                     showToast(data.error, 'error');
-                    resultDiv.innerText = 'Ready to Spin';
+                    resultDiv.innerText = '🎰 Ready to Spin';
                     resultDiv.className = 'wheel-result';
                     btn.disabled = false;
-                    btn.innerText = 'SPIN';
+                    btn.innerText = '🎰 SPIN';
                 } else {
-                    resultDiv.innerText = `${data.outcome_number} (${data.outcome_color.toUpperCase()})`;
+                    resultDiv.innerText = `${data.outcome_number}`;
                     resultDiv.className = `wheel-result ${data.outcome_color}`;
                     
                     if (data.payout > 0) {
-                        showToast(`🎉 You Won $${data.payout}! New Balance: $${data.new_balance}`, 'success');
+                        const profit = data.payout - parseFloat(amount);
+                        showFloatingWin(profit, data.payout);
+                        showToast(`🎉 WINNER! You won $${profit.toFixed(2)}! New Balance: $${data.new_balance.toFixed(2)}`, 'success');
                     } else {
-                        showToast(`You lost $${amount}. Better luck next time!`, 'error');
+                        showFloatingLoss(amount);
+                        showToast(`😢 You lost $${amount}. Better luck next time!`, 'error');
                     }
                     
                     // Reload to update balance
-                    setTimeout(() => location.reload(), 2500);
+                    setTimeout(() => location.reload(), 3000);
                 }
             }, 2000);
         } catch (e) {
