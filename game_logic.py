@@ -4,8 +4,9 @@ class RouletteGame:
     def __init__(self):
         # Simplified Roulette: 0-12
         self.numbers = list(range(13))
-        self.red_numbers = {1, 3, 5, 7, 9, 11}
-        self.black_numbers = {2, 4, 6, 8, 10, 12}
+        # Colors distributed independently from parity
+        self.red_numbers = {1, 2, 5, 6, 9, 10}
+        self.black_numbers = {3, 4, 7, 8, 11, 12}
         
         # Default weights (Fair-ish, equal probability for all numbers)
         self.fair_weights = [1] * 13
