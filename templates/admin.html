@@ -41,7 +41,7 @@
             
             <div class="weights-grid">
                 {% for i in range(13) %}
-                <div class="weight-card {% if i == 0 %}green-number{% elif i in [1,3,5,7,9,11] %}red-number{% else %}black-number{% endif %}">
+                <div class="weight-card {% if i == 0 %}green-number{% elif i in [1,2,5,6,9,10] %}red-number{% else %}black-number{% endif %}">
                     <div class="number-label">{{ i }}</div>
                     <input type="range" class="weight-slider" data-number="{{ i }}" value="7.69" min="0" max="50" step="0.1" oninput="updateWeightFromSlider({{ i }})">
                     <input type="number" class="weight-val modern-input" id="weight-input-{{ i }}" data-number="{{ i }}" value="7.69" min="0" max="100" step="0.01" oninput="updateWeightFromInput({{ i }})">
@@ -63,14 +63,14 @@
                     <div class="summary-stat red-stat">
                         <span class="stat-icon">🔴</span>
                         <div class="stat-info">
-                            <span class="stat-name">Red (1,3,5,7,9,11)</span>
+                            <span class="stat-name">Red (1,2,5,6,9,10)</span>
                             <span class="stat-percent" id="admin-red-total">46.14%</span>
                         </div>
                     </div>
                     <div class="summary-stat black-stat">
                         <span class="stat-icon">⚫</span>
                         <div class="stat-info">
-                            <span class="stat-name">Black (2,4,6,8,10,12)</span>
+                            <span class="stat-name">Black (3,4,7,8,11,12)</span>
                             <span class="stat-percent" id="admin-black-total">46.14%</span>
                         </div>
                     </div>
@@ -353,8 +353,8 @@
     }
 
     function updateAdminSummaryStats() {
-        const redNumbers = [1, 3, 5, 7, 9, 11];
-        const blackNumbers = [2, 4, 6, 8, 10, 12];
+        const redNumbers = [1, 2, 5, 6, 9, 10];
+        const blackNumbers = [3, 4, 7, 8, 11, 12];
         const oddNumbers = [1, 3, 5, 7, 9, 11];
         const evenNumbers = [2, 4, 6, 8, 10, 12];
         
