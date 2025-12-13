@@ -600,12 +600,13 @@ button:active {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
-.bet-btn.number.black { 
+.bet-btn.number.black {
     background: linear-gradient(135deg, #34495e, #2c3e50);
 }
 
 .bet-btn.number.green { 
     background: linear-gradient(135deg, #27ae60, #229954);
+    grid-column: span 6;
     font-size: 1.4rem;
 }
 
